@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-db
+  template:
+    metadata:
+      labels:
+        app: user-db
+    spec:
+      containers:
+        - image: mista123/users:latest
+          name: user-db
+          env:
+            - name: SECRET_KEY
+              value: 12a56cae4711ac88e4b18536476410ac3dd6d7ff21414921e3b187f86ace6475
+            - name: DB_URL
+              value: 83.212.127.63
+            - name: DB_PORT
+              value: 5432
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DB_NAME
+              value: mistrdb
+            #- name: KUMULUZEE_DATASOURCES0_PASSWORD
+            #  valueFrom:
+            #    secretKeyRef:
+            #      name: db-pass
+            #      key: password
+          ports:
+            - containerPort: 8080
+              name: server
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: server
+            initialDelaySeconds: 20
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: server
+            initialDelaySeconds: 20
+            periodSeconds: 3
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: card-images
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: server
+  selector:
+    app: user-db

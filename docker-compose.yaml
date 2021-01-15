@@ -1,0 +1,36 @@
+version: '2'
+services:
+   
+  services:
+    container_name: serviceDB
+    image: mista123/servicesdbbase:latest
+    build: .
+    networks:
+      - net
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_DB=db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_URL=db
+      - DB_NAME=user
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=user
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - net
+    ports:
+      - 5433:5432
+
+
+networks:
+  net:
+    driver: bridge
