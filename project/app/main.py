@@ -133,3 +133,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @app.get("/v1/users/me/", response_model=schemas.User)
 async def read_users_me(current_user: schemas.User = Depends(get_current_user)):
     return current_user
+
+
+@app.get("/v1/health/live", response_model=str)
+async def liveness_check():
+    return "OK"
