@@ -7,7 +7,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = getenv("SECRET_KEY", "90233f04cbaf3032176aedf04498e9f1c71fdf2be33650f74a639602487e2740")
 ALGORITHM = getenv("ALGORTIHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
-TOKEN_URL = getenv("TOKEN_URL", "token")
+TOKEN_URL = getenv("TOKEN_URL", "/v1/token")
 
 DB_PASSWORD = getenv("DB_PASSWORD", "postgres")
 DB_USER = getenv("DB_USER", "postgres")
