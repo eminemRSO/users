@@ -13,10 +13,7 @@ from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_URL
 from config import dd_trace_agent_url, dd_service, environment, dd_version, dd_tags
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
-from opentelemetry import trace
-from opentelemetry.exporter.datadog import DatadogExportSpanProcessor, DatadogSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.trace import TracerProvider
+ 
 
 """
 trace.set_tracer_provider(TracerProvider())
