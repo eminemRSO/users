@@ -13,7 +13,7 @@ from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_URL
 from config import dd_trace_agent_url, dd_service, environment, dd_version, dd_tags
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
- 
+
 
 """
 trace.set_tracer_provider(TracerProvider())
@@ -35,8 +35,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=TOKEN_URL)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-FastAPIInstrumentor.instrument_app(app)
 
 origins = [
     "http://localhost",
