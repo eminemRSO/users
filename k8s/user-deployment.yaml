@@ -3,13 +3,20 @@ kind: Deployment
 metadata:
   labels:
     app: user-db
-  namespace: default
   name: user-db-deployment
+  namespace: default
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: user-db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -26,14 +33,28 @@ spec:
             - name: DB_USER
               value: "postgres"
             - name: DB_PASSWORD
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: postgres_pass
             - name: DB_NAME
               value: "mistrdb"
           ports:
             - containerPort: 8081
               name: server
               protocol: TCP
-
+          livenessProbe:
+            httpGet:
+              path: /v1/health/live_check
+              port: server
+            initialDelaySeconds: 50
+            periodSeconds: 10
+          readinessProbe:
+            httpPost:
+              path: /v1/health/db_ready
+              port: server
+            initialDelaySeconds: 50
+            periodSeconds: 10
 
 ---
 

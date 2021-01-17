@@ -176,7 +176,7 @@ async def set_fail():
     return "OK"
 
 
-@app.get("/v1/health/db_ready", response_model=dict)
+@app.post("/v1/health/db_ready", response_model=dict)
 async def test_db(db: Session = Depends(get_db)):
     global FAIL
     if FAIL:
