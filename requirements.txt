@@ -7,3 +7,5 @@ passlib
 python-jose[cryptography]
 bcrypt
 python-consul
+opentelemetry-api
+opentelemetry-sdk

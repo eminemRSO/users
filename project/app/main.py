@@ -10,8 +10,25 @@ from database import SessionLocal, engine
 import crud
 import models
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_URL, pwd_context
+from config import dd_trace_agent_url, dd_service, environment, dd_version, dd_tags
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
+from opentelemetry import trace
+from opentelemetry.exporter.datadog import DatadogExportSpanProcessor, DatadogSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
+
+trace.set_tracer_provider(TracerProvider())
+datadog_exporter = DatadogSpanExporter(
+    agent_url=dd_trace_agent_url,
+    service=dd_service,
+    env=environment,
+    version=dd_version,
+    tags=dd_tags,
+)
+trace.get_tracer_provider().add_span_processor(
+    DatadogExportSpanProcessor(datadog_exporter)
+)
 
 FAIL = False
 
@@ -19,6 +36,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=TOKEN_URL)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+FastAPIInstrumentor.instrument_app(app)
 
 origins = [
     "http://localhost",
