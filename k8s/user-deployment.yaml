@@ -1,6 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: user-db
+  namespace: default
   name: user-db-deployment
 spec:
   replicas: 1
@@ -14,9 +17,8 @@ spec:
     spec:
       containers:
         - image: mista123/users:latest
+          name: user-db
           env:
-            - name: SECRET_KEY
-              value: "12a56cae4711ac88e4b18536476410ac3dd6d7ff21414921e3b187f86ace6475"
             - name: DB_URL
               value: "83.212.127.63"
             - name: DB_PORT
@@ -27,20 +29,19 @@ spec:
               value: "postgres"
             - name: DB_NAME
               value: "mistrdb"
-          name: user-db
           ports:
             - containerPort: 8080
               name: server
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health/live
+              path: /v1/health/live_check
               port: server
             initialDelaySeconds: 20
             periodSeconds: 3
           readinessProbe:
             httpGet:
-              path: /health/ready
+              path: /v1/health/db_ready
               port: server
             initialDelaySeconds: 20
             periodSeconds: 3
