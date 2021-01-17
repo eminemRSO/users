@@ -45,12 +45,6 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /v1/health/live_check
-              port: server
-            initialDelaySeconds: 50
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
               path: /v1/health/db_ready
               port: server
             initialDelaySeconds: 50
