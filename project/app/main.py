@@ -18,6 +18,7 @@ from opentelemetry.exporter.datadog import DatadogExportSpanProcessor, DatadogSp
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 
+"""
 trace.set_tracer_provider(TracerProvider())
 datadog_exporter = DatadogSpanExporter(
     agent_url=dd_trace_agent_url,
@@ -29,6 +30,7 @@ datadog_exporter = DatadogSpanExporter(
 trace.get_tracer_provider().add_span_processor(
     DatadogExportSpanProcessor(datadog_exporter)
 )
+"""
 
 FAIL = False
 
