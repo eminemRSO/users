@@ -11,6 +11,9 @@ import crud
 import models
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_URL, pwd_context
 from fastapi.middleware.cors import CORSMiddleware
+from uuid import uuid4
+
+FAIL = False
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=TOKEN_URL)
 models.Base.metadata.create_all(bind=engine)
@@ -106,6 +109,16 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
+@app.delete("/v1/users/")
+def delete_user(current_user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user:
+        raise HTTPException(status_code=400, detail="User doesn't exist")
+    deleted_user = crud.delete_user(db=db, user=current_user)
+    if deleted_user:
+        return deleted_user
+    return {"error": "user no longer exists"}
+
+
 @app.get("/v1/users/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
@@ -135,6 +148,44 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_user)):
     return current_user
 
 
-@app.get("/v1/health/live", response_model=str)
-async def liveness_check():
+@app.get("/v1/health/live_check", response_model=str)
+async def live_check():
     return "OK"
+
+
+@app.get("/v1/health/test_crash", response_model=str)
+async def set_fail():
+    global FAIL
+    FAIL = True
+    return "OK"
+
+
+@app.get("/v1/health/db_ready", response_model=dict)
+async def test_db(db: Session = Depends(get_db)):
+    global FAIL
+    if FAIL:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Intentional fail",
+        )
+    username = str(uuid4())
+    user = schemas.UserCreate(username=username, hashed_password="test_pswd")
+    new_user = crud.create_user(db=db, user=user)
+    if not new_user:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to create new user",
+        )
+    get_user_ret = crud.get_user_by_username(db, user.username)
+    if get_user_ret.username != username:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to get new user",
+        )
+    del_new_user = crud.delete_user(db, user)
+    if not del_new_user:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to delete new user",
+        )
+    return {"database_check": "ok"}
